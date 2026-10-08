@@ -592,7 +592,14 @@ const money=v=>`${(Number(v)||0).toFixed(2)} ${($("currency").value||"DA").trim(
 /* ===== PRODUCT SETTINGS — edit before publishing ===== */
 const PRODUCT_NAME="FlexoCalculator";
 // Paste your Firebase web config object here (Firebase console > Project settings > Your apps):
-const BUILTIN_FIREBASE_CONFIG=null;
+const BUILTIN_FIREBASE_CONFIG={
+  apiKey: "AIzaSyA3-iIcd8yYEzSpmPCbCfrv0-dMIcKLZuQ",
+  authDomain: "flexo-calculator.firebaseapp.com",
+  projectId: "flexo-calculator",
+  storageBucket: "flexo-calculator.firebasestorage.app",
+  messagingSenderId: "43776342863",
+  appId: "1:43776342863:web:f274e38defcf791559633a"
+};
 /* ====================================================== */
 let fbApp=null, fbAuth=null, fbDb=null, fbUser=null, fbUnsub=null;
 let applyingRemoteState=false, lastPushedBlob=null, pushTimer=null;

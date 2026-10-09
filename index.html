@@ -203,6 +203,9 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
 </head>
 <body>
 <style id="loginCss">
+.pwWrap{position:relative}.pwWrap input{padding-right:46px;width:100%}
+.pwEye{position:absolute;right:2px;top:0;height:46px;width:44px;border:0;background:transparent;color:#6B6B63;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pwEye.on{color:#0A7EA6}.pwEye:focus-visible{outline:2px solid #0A7EA6;border-radius:8px}
 #authGate{background:#0c1822;color:#e9f1f5;font-family:inherit}
 #authGate .lgBg{position:absolute;inset:0;z-index:0;overflow:hidden}
 #authGate .lgBg svg{position:absolute;width:100%;height:100%;object-fit:cover}
@@ -306,7 +309,8 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
           <h2 id="authTitle">Log in</h2>
           <div class="section-desc" id="authSub"></div>
           <div class="field"><label>Email</label><input id="syncEmail" type="email" placeholder="you@company.com" autocomplete="username"></div>
-          <div class="field"><label>Password</label><input id="syncPassword" type="password" placeholder="At least 6 characters" autocomplete="current-password"></div>
+          <div class="field"><label>Password</label><div class="pwWrap"><input id="syncPassword" type="password" placeholder="At least 6 characters" autocomplete="current-password"><button type="button" class="pwEye" data-eye="syncPassword" aria-label="Show password"><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z'/><circle cx='12' cy='12' r='3'/></svg></button></div></div>
+          <div class="field" id="confirmField"><label>Confirm password</label><div class="pwWrap"><input id="syncPassword2" type="password" placeholder="Type the password again" autocomplete="new-password"><button type="button" class="pwEye" data-eye="syncPassword2" aria-label="Show password"><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z'/><circle cx='12' cy='12' r='3'/></svg></button></div></div>
           <div class="actions">
             <button class="calculate" id="syncSignIn" style="width:100%">Log in</button>
             <button class="calculate" id="syncSignUp" style="width:100%">Create account</button>
@@ -325,7 +329,7 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
           g("authTitle").textContent=su?"Create your account":"Log in";
           g("authSub").textContent=su?"Use your work email. You will choose a plan after signing up.":"Welcome back. Enter your email and password.";
           g("syncSignUp").classList.toggle("hidden",!su); g("syncSignIn").classList.toggle("hidden",su);
-          g("authForgot").classList.toggle("hidden",su);
+          g("authForgot").classList.toggle("hidden",su); g("confirmField").classList.toggle("hidden",!su); g("syncPassword2").value="";
           g("syncPassword").setAttribute("autocomplete",su?"new-password":"current-password");
           g("authSwitchText").textContent=su?"Already have an account?":"New here?";
           g("authSwitch").textContent=su?"Log in":"Get started";
@@ -333,6 +337,7 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
           var m2=g("syncAuthMessage"); m2.classList.add("hidden");
           g("syncEmail").focus();
         }
+        document.querySelectorAll(".pwEye").forEach(function(b){b.onclick=function(){var i=g(b.dataset.eye),s=i.type==="password";i.type=s?"text":"password";b.classList.toggle("on",s);b.setAttribute("aria-label",s?"Hide password":"Show password")}});
         g("authGetStarted").onclick=function(){mode("signup")};
         g("authGoLogin").onclick=function(){mode("login")};
         g("authBack").onclick=function(e){e.preventDefault();g("authForm").classList.add("hidden");g("authChoice").classList.remove("hidden")};
@@ -983,6 +988,7 @@ function syncSignUp(){
   if(!fbAuth)return;
   const email=$("syncEmail").value.trim(), pass=$("syncPassword").value;
   if(!email||pass.length<6)return showSyncAuthMessage("Enter an email and a password of at least 6 characters.","error");
+  if(pass!==$("syncPassword2").value)return showSyncAuthMessage("The two passwords don't match. Please type them again.","error");
   fbAuth.createUserWithEmailAndPassword(email,pass).then(cred=>{ try{ cred.user.sendEmailVerification(); }catch(e){} }).catch(err=>showSyncAuthMessage(err.message,"error"));
 }
 function syncSignIn(){
@@ -2466,6 +2472,7 @@ $("licenseBuy").addEventListener("click",buyNow);
 $("licenseRefresh").addEventListener("click",refreshLicense);
 $("licenseResend").addEventListener("click",resendVerification);
 $("licenseSignOut").addEventListener("click",syncSignOutNow);
+$("syncPassword2").addEventListener("keydown",e=>{ if(e.key==="Enter")syncSignUp(); });
 $("syncPassword").addEventListener("keydown",e=>{ if(e.key==="Enter")($("syncSignUp").classList.contains("hidden")?syncSignIn():syncSignUp()); });
 $("saveCompany").onclick=saveCompanyProfile;
 $("removeCompanyLogo").onclick=removeCompanyLogo;

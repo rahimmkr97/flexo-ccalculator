@@ -21,6 +21,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Free-trial-used markers: server only.
+    match /trialUsed/{id} {
+      allow read, write: if false;
+    }
+
     // Payment records: server only.
     match /entitlements/{id} {
       allow read, write: if false;

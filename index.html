@@ -225,6 +225,9 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
 #authGate .lgCard{background:var(--card);color:var(--text);border-radius:14px;padding:28px 26px 24px;box-shadow:0 30px 70px rgba(0,0,0,.5);border-top:5px solid;border-image:linear-gradient(90deg,#0A9FD1 0 25%,#D6246E 25% 50%,#E8B820 50% 75%,#1A1A18 75% 100%) 1}
 #authGate .lgCard h2{margin:0 0 4px;font-size:23px}
 #authGate .lgCard .card{border:0;box-shadow:none;padding:0;background:transparent;border-left:0}
+#authGate .lgOr{display:flex;align-items:center;gap:10px;margin:16px 0 12px;color:var(--muted);font-size:12.5px}#authGate .lgOr:before,#authGate .lgOr:after{content:"";flex:1;height:1px;background:var(--line)}
+#authGate .lgPlans{display:grid;grid-template-columns:1fr 1fr;gap:10px}#authGate .lgPlans button{height:52px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2}#authGate .lgPlans small{font-size:11.5px;color:#0A7EA6;font-weight:600}
+#licenseGate .lkPlans button.pick{border-color:#0A7EA6;box-shadow:inset 0 0 0 2px #0A7EA6}
 #authGate .lgGuar{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);line-height:1.45}
 @media(max-width:900px){
 #authGate{padding:14px!important}
@@ -256,6 +259,8 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
 #licenseGate .lkCard .note{text-align:left;margin:4px 0 10px}
 #licenseGate .lkFoot{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
 #licenseGate .lkFoot b{color:var(--text);word-break:break-all}
+#licenseGate .lkOr{display:flex;align-items:center;gap:10px;margin:6px 0 12px;color:var(--muted);font-size:12.5px}#licenseGate .lkOr:before,#licenseGate .lkOr:after{content:"";flex:1;height:1px;background:var(--line)}
+#licenseGate .lkPlans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}#licenseGate .lkPlans button{height:52px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2}#licenseGate .lkPlans small{font-size:11.5px;color:#0A7EA6;font-weight:600}
 #licenseGate .lkLinks{display:flex;justify-content:center;gap:18px;margin-top:8px;flex-wrap:wrap}
 #licenseGate .lkLinks a{font-size:13px;color:#0A7EA6;font-weight:600;text-decoration:none}#licenseGate .lkLinks a:hover{text-decoration:underline}
 #licenseGate .lkGuar{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.45}
@@ -324,6 +329,11 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
           <div class="section-desc">Create your account in under a minute, then try it free for 3 days.</div>
           <button class="calculate" id="authGetStarted" style="width:100%;margin-top:6px">Start free trial</button>
           <button class="savebtn" id="authGoLogin" style="width:100%;margin-top:10px;height:46px">Log in</button>
+          <div class="lgOr"><span>or subscribe now</span></div>
+          <div class="lgPlans">
+            <button class="savebtn" id="authMonthly">Monthly</button>
+            <button class="savebtn" id="authYearly">Yearly<small>save 16%</small></button>
+          </div>
         </div>
         <div id="authForm" class="hidden">
           <h2 id="authTitle">Log in</h2>
@@ -358,7 +368,10 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
           g("syncEmail").focus();
         }
         document.querySelectorAll(".pwEye").forEach(function(b){b.onclick=function(){var i=g(b.dataset.eye),s=i.type==="password";i.type=s?"text":"password";b.classList.toggle("on",s);b.setAttribute("aria-label",s?"Hide password":"Show password")}});
-        g("authGetStarted").onclick=function(){mode("signup")};
+        function intent(pl){try{localStorage.setItem("lp_intent",pl)}catch(e){} mode("signup"); g("authSub").textContent="Create your account and confirm your email. Then you can subscribe to the "+(pl==="yearly"?"yearly":"monthly")+" plan."; g("authTitle").textContent="Create your account to subscribe";}
+        g("authMonthly").onclick=function(){intent("monthly")};
+        g("authYearly").onclick=function(){intent("yearly")};
+        g("authGetStarted").onclick=function(){try{localStorage.removeItem("lp_intent")}catch(e){} mode("signup")};
         g("authGoLogin").onclick=function(){mode("login")};
         g("authBack").onclick=function(e){e.preventDefault();g("authForm").classList.add("hidden");g("authChoice").classList.remove("hidden")};
       })();
@@ -417,8 +430,13 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
       <h2 id="licenseTitle">Start your 3-day free trial</h2>
       <div class="lkDesc" id="licenseDesc">Start your 3-day free trial. Add a card to begin: you are not charged until the trial ends, and you can cancel anytime before. Then choose monthly or yearly.</div>
       <div id="licenseVerify" class="lkVerify hidden"></div>
-      <button class="calculate lkBtn" id="licenseRefresh">Refresh</button>
-      <button class="savebtn lkBtn" id="licenseBuy">Start 3-day free trial</button>
+      <button class="calculate lkBtn" id="licenseBuy">Start 3-day free trial</button>
+      <div class="lkOr" id="licenseOr"><span>or subscribe now</span></div>
+      <div class="lkPlans">
+        <button class="savebtn" id="licenseMonthly">Monthly</button>
+        <button class="savebtn" id="licenseYearly">Yearly<small>save 16%</small></button>
+      </div>
+      <button class="savebtn lkBtn" id="licenseRefresh">I've confirmed my email / paid: Refresh</button>
       <button class="savebtn lkBtn hidden" id="licenseBack">Back to app</button>
       <div id="licenseMessage" class="note hidden"></div>
       <div class="lkFoot">
@@ -927,7 +945,7 @@ function initFirebaseIfConfigured(){
       watchLicense(user.uid);
     }else{
       $("authGate").classList.remove("hidden");
-      $("licenseGate").classList.add("hidden"); $("trialBar").classList.add("hidden"); clearTimeout(trialTimer); $("licenseTitle").textContent="Start your 3-day free trial";
+      $("licenseGate").classList.add("hidden"); $("trialBar").classList.add("hidden"); clearTimeout(trialTimer); setTrialUsed(false); $("licenseTitle").textContent="Start your 3-day free trial";
       if(fbLicUnsub){ fbLicUnsub(); fbLicUnsub=null; }
       if(fbUnsub){ fbUnsub(); fbUnsub=null; }
     }
@@ -950,11 +968,24 @@ async function callFn(name,data){
   if(!res.ok)throw new Error(json.error||"Server error ("+res.status+")");
   return {data:json};
 }
+function showPlanIntent(){
+  let pl=null; try{ pl=localStorage.getItem("lp_intent"); }catch(e){}
+  ["licenseMonthly","licenseYearly"].forEach(id=>$(id).classList.remove("pick"));
+  if(pl==="monthly"||pl==="yearly"){
+    $(pl==="yearly"?"licenseYearly":"licenseMonthly").classList.add("pick");
+    if(fbUser&&fbUser.emailVerified)showLicenseMessage("You chose the "+pl+" plan. Press \""+(pl==="yearly"?"Yearly":"Monthly")+"\" to continue.");
+  }
+}
+function setTrialUsed(used){
+  $("licenseBuy").classList.toggle("hidden",!!used);
+  $("licenseOr").querySelector("span").textContent=used?"subscribe to continue":"or subscribe now";
+  if(used){ $("licenseTitle").textContent="Choose your plan"; $("licenseDesc").textContent="Your free trial has been used. Pick a monthly or yearly plan to keep using FlexoCalculator."; }
+}
 function updateVerifyNotice(){
   const u=fbUser, box=$("licenseVerify");
   $("licenseEmail").textContent=(u&&u.email)||"";
   if(u&&!u.emailVerified){
-    box.textContent="First, confirm your email: open the message we sent to "+u.email+" and click the link, then press \"Refresh\", then start your free trial.";
+    box.textContent="First, confirm your email: open the message we sent to "+u.email+" and click the link, then press \"Refresh\" below, then start your free trial.";
     box.classList.remove("hidden");
     $("licenseResend").classList.remove("hidden");
   }else{
@@ -969,27 +1000,29 @@ async function refreshLicense(){
     updateVerifyNotice();
     const res=await callFn("checkLicense");
     const r=res.data||{};
+    setTrialUsed(r.trialUsed);
     showLicenseMessage(r.active?"Unlocked.":(r.reason||"No payment found for this email yet. If you just paid, wait a few seconds and try again."),r.active?"":"error");
   }catch(e){
     console.error(e);
     showLicenseMessage((e&&e.message)||"Couldn't reach the server. Try again.","error");
   }finally{ btn.disabled=false; }
 }
-async function buyNow(){
+async function buyNow(plan,trial){
   if(fbUser&&!fbUser.emailVerified){ showLicenseMessage("Please confirm your email first (see above), then press \"Refresh\", then Start free trial.","error"); return; }
-  const btn=$("licenseBuy"); btn.disabled=true; showLicenseMessage("Opening checkout…");
+  const btns=["licenseBuy","licenseMonthly","licenseYearly"].map($); btns.forEach(b=>b.disabled=true); showLicenseMessage("Opening checkout…"); try{localStorage.removeItem("lp_intent")}catch(e){}
   const w=window.open("","_blank");
   try{
-    const res=await callFn("createCheckout");
+    const res=await callFn("createCheckout",{plan:plan||"monthly",trial:!!trial});
     const link=res.data&&res.data.link;
     if(!link)throw new Error("No checkout link returned.");
     if(w)w.location.href=link; else location.href=link;
-    showLicenseMessage("Checkout opened in a new tab. When you've paid, come back here: this screen unlocks automatically.");
+    showLicenseMessage(trial?"Checkout opened in a new tab. Once your trial starts, come back here: this screen unlocks automatically.":"Checkout opened in a new tab. When you've paid, come back here: this screen unlocks automatically.");
   }catch(e){
     if(w)w.close();
     console.error(e);
     showLicenseMessage((e&&e.message)||"Couldn't open checkout. Try again.","error");
-  }finally{ btn.disabled=false; }
+    if(e&&/already used your free trial/.test(e.message))setTrialUsed(true);
+  }finally{ btns.forEach(b=>b.disabled=false); }
 }
 async function resendVerification(){
   try{ await fbUser.sendEmailVerification(); showLicenseMessage("Verification email sent to "+fbUser.email+"."); }
@@ -1020,7 +1053,7 @@ function evaluateLicense(uid){
     if(fbUnsub){ fbUnsub(); fbUnsub=null; }
     updateVerifyNotice();
     $("licenseBack").classList.add("hidden");
-    $("licenseGate").classList.remove("hidden");
+    $("licenseGate").classList.remove("hidden"); showPlanIntent();
     if(trialOver){ $("licenseTitle").textContent="Your free trial has ended"; showLicenseMessage("Choose a monthly or yearly plan to keep using FlexoCalculator. Your data is safe and will be here when you subscribe.","error"); }
     else if(d&&d.reason)showLicenseMessage(d.reason,"error");
   }
@@ -1035,7 +1068,7 @@ function watchLicense(uid){
     evaluateLicense(uid);
     if(!licenseCheckedOnce){
       licenseCheckedOnce=true;
-      callFn("checkLicense").catch(()=>{});
+      callFn("checkLicense").then(r=>{ if(r&&r.data)setTrialUsed(r.data.trialUsed); }).catch(()=>{});
     }
   },err=>{
     console.error(err);
@@ -2607,7 +2640,9 @@ $("syncSignUp").onclick=syncSignUp;
 $("syncSignIn").onclick=syncSignIn;
 $("syncSignOut").onclick=syncSignOutNow;
 $("syncReset").onclick=syncResetPassword;
-$("licenseBuy").addEventListener("click",buyNow);
+$("licenseBuy").addEventListener("click",()=>buyNow("monthly",true));
+$("licenseMonthly").addEventListener("click",()=>buyNow("monthly",false));
+$("licenseYearly").addEventListener("click",()=>buyNow("yearly",false));
 $("licenseRefresh").addEventListener("click",refreshLicense);
 $("trialSubscribe").addEventListener("click",()=>{ $("licenseTitle").textContent="Subscribe to FlexoCalculator"; $("licenseBack").classList.remove("hidden"); $("licenseGate").classList.remove("hidden"); });
 $("licenseBack").addEventListener("click",()=>$("licenseGate").classList.add("hidden"));

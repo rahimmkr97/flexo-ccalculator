@@ -783,6 +783,19 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
     <button class="dangerbtn" id="syncSignOut">Sign out</button>
   </div>
 </section>
+<section class="card spine-sync" id="planCard">
+  <h2>Your plan</h2>
+  <div class="section-desc">See your subscription and manage it. You can cancel any time.</div>
+  <div id="planBody" class="note">Loading your plan…</div>
+  <div id="planCancelBox" class="hidden" style="margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:10px">
+    <b>Cancel your subscription?</b>
+    <div class="hint" style="margin:6px 0 10px">Your plan stays active until the end of the period you already paid for, then stops renewing. You will not be charged again.</div>
+    <div class="field"><label>Why are you leaving? (optional)</label>
+      <select id="planCancelReason"><option value="">Choose a reason</option><option value="2">Too expensive</option><option value="3">Missing features</option><option value="4">Found a better product</option><option value="5">No longer needed</option><option value="1">Other</option></select></div>
+    <div class="actions"><button class="dangerbtn" id="planCancelConfirm">Yes, cancel my subscription</button><button class="savebtn" id="planCancelKeep">Keep my plan</button></div>
+  </div>
+  <div id="planMsg" class="note hidden"></div>
+</section>
 </div>
 
 <div id="settingsPage" class="page">
@@ -2593,6 +2606,51 @@ function resetFactory(){
   if(lastCalc)calculateCost();
 }
 
+let planSub=null;
+function planFetch(url,opts){
+  return fbUser.getIdToken().then(t=>{ opts=opts||{}; opts.headers=Object.assign({"Authorization":"Bearer "+t},opts.headers||{}); return fetch(url,opts); });
+}
+function planMessage(t,err){ const m=$("planMsg"); m.textContent=t; m.classList.remove("hidden"); m.style.color=err?"#b3261e":"inherit"; }
+async function loadPlan(){
+  const body=$("planBody"); if(!fbUser){ return; }
+  $("planCancelBox").classList.add("hidden");
+  const d=lastLicenseDoc;
+  try{
+    const res=await planFetch(API_BASE+"/api/portal?action=portal_data");
+    if(!res.ok)throw new Error("portal "+res.status);
+    const data=await res.json();
+    const subs=(data.subscriptions&&(data.subscriptions.primary?[data.subscriptions.primary]:[]).concat(data.subscriptions.active||[]))||[];
+    const sub=subs[0]||null; planSub=sub;
+    if(!sub){ body.innerHTML=(d&&d.active)?"<b>Active.</b> No recurring subscription found for this account.":"<b>No active plan.</b>"; return; }
+    const canceled=!!sub.cancelledAt;
+    const date=sub.renewalDate?new Date(sub.renewalDate).toLocaleDateString():"";
+    const cycle=sub.billingCycle?(" ("+sub.billingCycle+")"):"";
+    body.innerHTML="<b>"+(sub.planTitle||"FlexoCalculator")+cycle+"</b><br>"+
+      (sub.renewalAmount?(String(sub.currency||"").toUpperCase()+" "+sub.renewalAmount+" per period<br>"):"")+
+      (canceled?("Cancelled. Active until <b>"+date+"</b>, then it stops."):("Active. Next renewal: <b>"+date+"</b>."));
+    if(!canceled&&sub.isActive&&sub.cancelRenewalUrl){
+      body.innerHTML+='<div class="actions" style="margin-top:12px"><button class="dangerbtn" id="planCancelStart">Cancel subscription</button></div>';
+      $("planCancelStart").onclick=()=>$("planCancelBox").classList.remove("hidden");
+    }
+  }catch(e){
+    console.error(e);
+    body.innerHTML=(d&&d.active?"<b>Active.</b> ":"")+'Couldn\'t load billing details. You can also manage or cancel your subscription at <a href="https://users.freemius.com" target="_blank" rel="noopener">users.freemius.com</a> with the email you paid with.';
+  }
+}
+async function cancelPlan(){
+  if(!planSub||!planSub.cancelRenewalUrl)return;
+  const btn=$("planCancelConfirm"); btn.disabled=true; planMessage("Cancelling…");
+  try{
+    const reason=$("planCancelReason").value;
+    const res=await planFetch(planSub.cancelRenewalUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reason_ids:reason?[reason]:undefined})});
+    if(!res.ok)throw new Error("cancel "+res.status);
+    planMessage("Your subscription is cancelled. It stays active until the end of the paid period.");
+    await loadPlan();
+  }catch(e){ console.error(e); planMessage("Couldn't cancel. Try again, or cancel at users.freemius.com.",true); }
+  finally{ btn.disabled=false; }
+}
+$("planCancelConfirm").addEventListener("click",cancelPlan);
+$("planCancelKeep").addEventListener("click",()=>$("planCancelBox").classList.add("hidden"));
 function showPage(target){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
@@ -2604,6 +2662,7 @@ function showPage(target){
   if(target==="productionListPage"){renderProductionList();}
   if(target==="reportsPage"){renderReports();}
   if(target==="companyPage"){renderCompanyForm();}
+  if(target==="syncPage"){loadPlan();}
   window.scrollTo({top:0,behavior:"smooth"});
 }
 

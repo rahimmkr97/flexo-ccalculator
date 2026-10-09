@@ -855,6 +855,11 @@ body.dark .subnavbtn.active{background:var(--cyan);color:#06121A}
 </div>
 
 <div id="reportsPage" class="page">
+<section class="card spine-reports" id="periodCard">
+  <h2>Monthly &amp; yearly summary</h2>
+  <div class="section-desc">Weight produced, cost and revenue (what you invoice) per month and per year, from your saved orders. Profit = revenue − cost.</div>
+  <div id="periodBody" class="note">Save orders to see your monthly and yearly totals.</div>
+</section>
 <section class="card spine-reports">
   <h2>Client & Waste Reports</h2>
   <div class="section-desc">Totals by client — orders, meters and weight produced — plus waste and its cost, per order and across everything.</div>
@@ -2079,7 +2084,65 @@ function renderProductionList(){
    Reports
    ======================================================== */
 
+
+/* ---------- Monthly & yearly summary ---------- */
+let periodYear=null;
+function orderFinancials(o){
+  const c=o.calculation||{};
+  const kg=(o.production&&o.production.actualWeightKg>0)?o.production.actualWeightKg:getOrderPlannedWeightKg(o);
+  const hasFin=!!(c.costPerKg>0);
+  const cost=hasFin?c.costPerKg*kg:0;
+  const revenue=(c.sellingPrice>0)?c.sellingPrice*kg:0;
+  return {kg,cost,revenue,hasFin};
+}
+function renderPeriodReport(){
+  const box=$("periodBody"); if(!box)return;
+  const rows=savedOrders.map(o=>{
+    const d=(o.date||"").slice(0,10); const f=orderFinancials(o);
+    return {year:+d.slice(0,4)||null,month:+d.slice(5,7)||null,...f};
+  }).filter(r=>r.year&&r.month);
+  if(!rows.length){ box.className="note"; box.textContent="Save orders to see your monthly and yearly totals."; return; }
+  const years=[...new Set(rows.map(r=>r.year))].sort((a,b)=>b-a);
+  if(!periodYear||!years.includes(periodYear))periodYear=years[0];
+  const agg=list=>list.reduce((a,r)=>({n:a.n+1,kg:a.kg+r.kg,cost:a.cost+r.cost,rev:a.rev+r.revenue}),{n:0,kg:0,cost:0,rev:0});
+  const cur=($("currency").value||"DA").trim(); const mF=v=>kgF0(v)+" "+cur; const kgF0=v=>v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const num0=v=>v.toLocaleString(undefined,{maximumFractionDigits:0});
+  const kgF=v=>v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const profitCls=v=>v<0?' style="color:var(--danger);font-weight:700"':' style="color:var(--ok);font-weight:700"';
+  const yRows=rows.filter(r=>r.year===periodYear);
+  const tot=agg(yRows), prof=tot.rev-tot.cost;
+  const names=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const months=names.map((nm,i)=>({nm,...agg(yRows.filter(r=>r.month===i+1))}));
+  const maxV=Math.max(1,...months.map(m=>Math.max(m.cost,m.rev)));
+  const noFin=savedOrders.filter(o=>!(o.calculation&&o.calculation.costPerKg>0)).length;
+  const bars=months.map(m=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0">
+      <div style="height:110px;display:flex;align-items:flex-end;gap:3px;width:100%;justify-content:center">
+        <div title="Cost ${mF(m.cost)}" style="width:38%;max-width:16px;height:${Math.max(2,m.cost/maxV*100)}%;background:var(--amber);border-radius:4px 4px 0 0;opacity:${m.n?1:.25}"></div>
+        <div title="Revenue ${mF(m.rev)}" style="width:38%;max-width:16px;height:${Math.max(2,m.rev/maxV*100)}%;background:var(--cyan);border-radius:4px 4px 0 0;opacity:${m.n?1:.25}"></div>
+      </div><small style="font-size:10.5px;color:var(--muted)">${m.nm}</small></div>`).join("");
+  const mRows=months.filter(m=>m.n).map(m=>`<tr><td>${m.nm} ${periodYear}</td><td>${m.n}</td><td>${kgF(m.kg)}</td><td>${num0(m.cost)}</td><td>${num0(m.rev)}</td><td${profitCls(m.rev-m.cost)}>${num0(m.rev-m.cost)}</td></tr>`).join("");
+  const yearRows=years.map(y=>{const a=agg(rows.filter(r=>r.year===y));return `<tr><td><b>${y}</b></td><td>${a.n}</td><td>${kgF(a.kg)}</td><td>${num0(a.cost)}</td><td>${num0(a.rev)}</td><td${profitCls(a.rev-a.cost)}>${num0(a.rev-a.cost)}</td></tr>`;}).join("");
+  const head='<thead><tr><th>Period</th><th>Orders</th><th>Weight (kg)</th><th>Cost</th><th>Revenue</th><th>Profit</th></tr></thead>';
+  box.className="";
+  box.innerHTML=`
+    <div class="field" style="max-width:200px"><label>Year</label><select id="periodYearSel">${years.map(y=>`<option value="${y}"${y===periodYear?" selected":""}>${y}</option>`).join("")}</select></div>
+    <div class="resultTop" style="flex-wrap:wrap">
+      <div class="metric"><small>Weight ${periodYear}</small><strong>${kgF(tot.kg)} kg</strong></div>
+      <div class="metric"><small>Cost ${periodYear}</small><strong>${mF(tot.cost)}</strong></div>
+      <div class="metric"><small>Revenue ${periodYear}</small><strong>${mF(tot.rev)}</strong></div>
+    </div>
+    <div class="cost-result"><div class="cost-card primary-result"><small>${prof>=0?"Profit":"Loss"} ${periodYear}</small><strong>${mF(prof)}</strong></div></div>
+    <div style="display:flex;gap:14px;align-items:center;margin:18px 0 6px;font-size:12px;color:var(--muted)"><span><i style="display:inline-block;width:10px;height:10px;background:var(--amber);border-radius:2px;margin-right:5px"></i>Cost</span><span><i style="display:inline-block;width:10px;height:10px;background:var(--cyan);border-radius:2px;margin-right:5px"></i>Revenue</span></div>
+    <div style="display:flex;gap:2px;align-items:flex-end">${bars}</div>
+    <div style="overflow-x:auto"><table class="table" style="margin-top:16px">${head.replace("Period","Month")}<tbody>${mRows||'<tr><td colspan="6">No orders in this year.</td></tr>'}</tbody></table></div>
+    <h2 style="margin-top:22px;font-size:15px">Per year</h2>
+    <div style="overflow-x:auto"><table class="table">${head.replace("Period","Year")}<tbody>${yearRows}</tbody></table></div>
+    <div class="note">Weight = actual produced weight when you logged it on the Production tab, otherwise the ordered quantity. Cost and revenue use the cost per kg and selling price saved with each order (calculated when you saved it), grouped by order date.${noFin?` <b>${noFin} order${noFin===1?"":"s"} saved without a cost calculation</b> — they count in the weight but show no cost or revenue.`:""}</div>`;
+  $("periodYearSel").onchange=e=>{periodYear=+e.target.value; renderPeriodReport();};
+}
+
 function renderReports(){
+  renderPeriodReport();
   const empty=$("reportsEmpty"), summaryBox=$("reportsSummary"), container=$("clientReports");
   if(!savedOrders.length){
     empty.classList.remove("hidden");

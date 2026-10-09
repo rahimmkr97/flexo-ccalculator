@@ -222,6 +222,25 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
     </section>
   </div>
 </div>
+<div id="licenseGate" class="hidden" style="position:fixed;inset:0;z-index:1900;overflow:auto;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:420px">
+    <section class="card">
+      <h2>Unlock FlexoCalculator</h2>
+      <div class="section-desc">One payment gives your account full access, for good. After you pay, this screen unlocks by itself within a few seconds.</div>
+      <div id="licenseVerify" class="note hidden" style="margin-bottom:12px"></div>
+      <div class="actions">
+        <button class="calculate" id="licenseBuy" style="width:auto;padding:0 18px">Buy now</button>
+        <button class="savebtn" id="licenseRefresh">I've paid, refresh</button>
+      </div>
+      <div class="actions" style="margin-top:10px">
+        <button class="savebtn" id="licenseResend">Resend verification email</button>
+        <button class="savebtn" id="licenseSignOut">Sign out</button>
+      </div>
+      <div style="margin-top:12px;font-size:13px">Pay with the same email you used to sign up: <b id="licenseEmail"></b></div>
+      <div id="licenseMessage" class="note hidden"></div>
+    </section>
+  </div>
+</div>
 <div class="app">
 <header class="header">
   <div class="brandRow">
@@ -712,15 +731,106 @@ function initFirebaseIfConfigured(){
     if(user){
       $("authGate").classList.add("hidden");
       $("syncUserEmail").textContent=user.email||"Signed in";
-      setSyncStatus("Connecting…");
-      subscribeToCloud(user.uid);
+      setSyncStatus("Checking license…");
+      watchLicense(user.uid);
     }else{
       $("authGate").classList.remove("hidden");
+      $("licenseGate").classList.add("hidden");
+      if(fbLicUnsub){ fbLicUnsub(); fbLicUnsub=null; }
       if(fbUnsub){ fbUnsub(); fbUnsub=null; }
     }
   });
 }
 
+let fbLicUnsub=null, licenseActive=false, licenseCheckedOnce=false;
+function showLicenseMessage(t,kind){
+  const el=$("licenseMessage"); el.textContent=t; el.classList.remove("hidden");
+  el.style.color=kind==="error"?"#b3261e":"inherit";
+}
+// Server address. Leave empty when the app and its server are on the same site (Vercel).
+const API_BASE="";
+async function callFn(name,data){
+  if(!fbUser)throw new Error("Sign in first.");
+  const token=await fbUser.getIdToken();
+  const res=await fetch(API_BASE+"/api/"+name,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(data||{})});
+  let json={};
+  try{ json=await res.json(); }catch(e){}
+  if(!res.ok)throw new Error(json.error||"Server error ("+res.status+")");
+  return {data:json};
+}
+function updateVerifyNotice(){
+  const u=fbUser, box=$("licenseVerify");
+  $("licenseEmail").textContent=(u&&u.email)||"";
+  if(u&&!u.emailVerified){
+    box.textContent="First, confirm your email: open the message we sent to "+u.email+" and click the link, then press \"I've paid, refresh\".";
+    box.classList.remove("hidden");
+    $("licenseResend").classList.remove("hidden");
+  }else{
+    box.classList.add("hidden");
+    $("licenseResend").classList.add("hidden");
+  }
+}
+async function refreshLicense(){
+  const btn=$("licenseRefresh"); btn.disabled=true; showLicenseMessage("Checking…");
+  try{
+    if(fbUser){ await fbUser.reload(); await fbUser.getIdToken(true); }
+    updateVerifyNotice();
+    const res=await callFn("checkLicense");
+    const r=res.data||{};
+    showLicenseMessage(r.active?"Unlocked.":(r.reason||"No payment found for this email yet. If you just paid, wait a few seconds and try again."),r.active?"":"error");
+  }catch(e){
+    console.error(e);
+    showLicenseMessage((e&&e.message)||"Couldn't reach the server. Try again.","error");
+  }finally{ btn.disabled=false; }
+}
+async function buyNow(){
+  if(fbUser&&!fbUser.emailVerified){ showLicenseMessage("Please confirm your email first (see above), then press \"I've paid, refresh\", then Buy now.","error"); return; }
+  const btn=$("licenseBuy"); btn.disabled=true; showLicenseMessage("Opening checkout…");
+  const w=window.open("","_blank");
+  try{
+    const res=await callFn("createCheckout");
+    const link=res.data&&res.data.link;
+    if(!link)throw new Error("No checkout link returned.");
+    if(w)w.location.href=link; else location.href=link;
+    showLicenseMessage("Checkout opened in a new tab. When you've paid, come back here: this screen unlocks automatically.");
+  }catch(e){
+    if(w)w.close();
+    console.error(e);
+    showLicenseMessage((e&&e.message)||"Couldn't open checkout. Try again.","error");
+  }finally{ btn.disabled=false; }
+}
+async function resendVerification(){
+  try{ await fbUser.sendEmailVerification(); showLicenseMessage("Verification email sent to "+fbUser.email+"."); }
+  catch(e){ showLicenseMessage((e&&e.message)||"Couldn't send the email. Try again in a minute.","error"); }
+}
+function watchLicense(uid){
+  if(fbLicUnsub){ fbLicUnsub(); fbLicUnsub=null; }
+  licenseCheckedOnce=false;
+  const ref=fbDb.collection("users").doc(uid).collection("meta").doc("license");
+  fbLicUnsub=ref.onSnapshot(snap=>{
+    const d=snap.exists?snap.data():null;
+    licenseActive=!!(d&&d.active);
+    if(licenseActive){
+      $("licenseGate").classList.add("hidden");
+      setSyncStatus("Connecting…");
+      if(!fbUnsub)subscribeToCloud(uid);
+    }else{
+      if(fbUnsub){ fbUnsub(); fbUnsub=null; }
+      updateVerifyNotice();
+      $("licenseGate").classList.remove("hidden");
+      if(d&&d.reason)showLicenseMessage(d.reason,"error");
+    }
+    if(!licenseCheckedOnce){
+      licenseCheckedOnce=true;
+      callFn("checkLicense").catch(()=>{});
+    }
+  },err=>{
+    console.error(err);
+    updateVerifyNotice();
+    $("licenseGate").classList.remove("hidden");
+    showLicenseMessage("Couldn't check your access. Check your internet connection and reload.","error");
+  });
+}
 function subscribeToCloud(uid){
   if(fbUnsub){ fbUnsub(); fbUnsub=null; }
   const ref=fbDb.collection("users").doc(uid).collection("app").doc("state");
@@ -753,7 +863,7 @@ function syncSignUp(){
   if(!fbAuth)return;
   const email=$("syncEmail").value.trim(), pass=$("syncPassword").value;
   if(!email||pass.length<6)return showSyncAuthMessage("Enter an email and a password of at least 6 characters.","error");
-  fbAuth.createUserWithEmailAndPassword(email,pass).catch(err=>showSyncAuthMessage(err.message,"error"));
+  fbAuth.createUserWithEmailAndPassword(email,pass).then(cred=>{ try{ cred.user.sendEmailVerification(); }catch(e){} }).catch(err=>showSyncAuthMessage(err.message,"error"));
 }
 function syncSignIn(){
   if(!fbAuth)return;
@@ -768,6 +878,7 @@ async function syncSignOutNow(){
     clearTimeout(pushTimer);
     await pushStateNow();
     if(fbUnsub){ fbUnsub(); fbUnsub=null; }
+    if(fbLicUnsub){ fbLicUnsub(); fbLicUnsub=null; }
     await fbAuth.signOut();
   }catch(e){ console.error(e); }
   // Remove this account's data from the device so the next person starts clean.
@@ -2231,6 +2342,10 @@ $("syncSignUp").onclick=syncSignUp;
 $("syncSignIn").onclick=syncSignIn;
 $("syncSignOut").onclick=syncSignOutNow;
 $("syncReset").onclick=syncResetPassword;
+$("licenseBuy").addEventListener("click",buyNow);
+$("licenseRefresh").addEventListener("click",refreshLicense);
+$("licenseResend").addEventListener("click",resendVerification);
+$("licenseSignOut").addEventListener("click",syncSignOutNow);
 $("syncPassword").addEventListener("keydown",e=>{ if(e.key==="Enter")syncSignIn(); });
 $("saveCompany").onclick=saveCompanyProfile;
 $("removeCompanyLogo").onclick=removeCompanyLogo;

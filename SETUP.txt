@@ -1,0 +1,43 @@
+FLEXOCALCULATOR SETUP (no Firebase Blaze needed)
+
+The app stays the same. The payment/unlock logic runs on Vercel (free plan, no card needed).
+
+A. FIREBASE (2 things)
+ 1. Rules: Firebase console > Firestore Database > Rules. Delete everything, paste the contents of
+    firestore.rules from this folder, click Publish.
+ 2. Service account key: Firebase console > gear icon > Project settings > Service accounts >
+    "Generate new private key". A .json file downloads. Keep it private. Never upload it to GitHub.
+
+B. GITHUB
+ Upload ALL files from this folder to your product GitHub repo (index.html, service-worker.js,
+ manifest, icons, package.json, firestore.rules, and the whole "api" folder).
+ Do not upload the Firebase .json key file.
+
+C. VERCEL
+ 1. Go to vercel.com and sign up with your GitHub account (Hobby plan, free).
+ 2. Add New > Project > import your product repo > Deploy.
+ 3. Project > Settings > Environment Variables. Add these (all environments):
+      FREEMIUS_PRODUCT_ID      41175
+      FREEMIUS_PUBLIC_KEY      pk_c67f9fba9716c3b4e250bc1e53157
+      FREEMIUS_SECRET_KEY      (your NEW Freemius secret key)
+      FREEMIUS_API_KEY         (your NEW Freemius API key)
+      FREEMIUS_PLAN_ID         (leave out if your product has one plan)
+      FREEMIUS_SANDBOX         true
+      OWNER_EMAIL              (your own email, always unlocked for testing)
+      FIREBASE_SERVICE_ACCOUNT (open the downloaded .json in Notepad, copy ALL of it, paste)
+ 4. Deployments > Redeploy (so the variables take effect).
+ 5. Your app is now at the address Vercel shows, like https://your-project.vercel.app.
+    Use THIS address as the app link from now on.
+
+D. FREEMIUS WEBHOOK
+ Freemius dashboard > your product > Webhooks > add:
+    https://your-project.vercel.app/api/freemiusWebhook
+ Subscribe to: license.created, license.updated, license.extended, license.shortened,
+ license.cancelled, license.expired, license.plan.changed, license.deleted
+
+E. FIREBASE AUTH
+ Firebase console > Authentication > Settings > Authorized domains > add your-project.vercel.app
+
+F. TEST
+ Open the Vercel address, sign up, confirm your email, press Buy now, pay with a Freemius test card.
+ When ready to sell for real, change FREEMIUS_SANDBOX to false in Vercel and redeploy.

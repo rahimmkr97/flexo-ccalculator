@@ -1,0 +1,8 @@
+{
+  "name": "flexocalculator",
+  "private": true,
+  "dependencies": {
+    "@freemius/sdk": "latest",
+    "firebase-admin": "^12.6.0"
+  }
+}

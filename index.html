@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;0,700;0,800;0,900;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Archivo:ital,wght@0,500;0,600;0,700;0,800;0,900;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <title>FlexoCalculator</title>
 <style>
 :root{
@@ -207,6 +207,112 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
   .metric{border-right:0;border-bottom:1px solid var(--line)}
   .metric:last-child{border-bottom:0}
 }
+
+/* =====================================================================
+   MODERN THEME (overrides) — slate + teal, dark sidebar, soft cards
+   ===================================================================== */
+:root{
+  --ink:#0F1B2D;--cyan:#0E86B0;--cyan-deep:#0A6A8E;--amber:#D98A1F;--magenta:#C41E6B;
+  --bg:#F2F5F9;--card:#FFFFFF;--text:#0F172A;--muted:#64748B;
+  --line:#E3E8EF;--line-strong:#C9D2DF;--input:#FFFFFF;
+  --radius:16px;--radius-sm:10px;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 10px 30px rgba(15,23,42,.06);
+  --font:'Inter','Archivo',-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  --grad:linear-gradient(135deg,#17A2CF 0%,#0A6F96 100%);
+}
+body.dark{
+  --ink:#E6EBF4;--cyan:#38B6DF;--cyan-deep:#8FD2E9;
+  --bg:#0A1120;--card:#121B2E;--text:#E6EBF4;--muted:#8D9AB2;
+  --line:#1F2C45;--line-strong:#2E4064;--input:#0D1527;--shadow:0 10px 30px rgba(0,0,0,.35);
+}
+body{background:var(--bg);font-feature-settings:"cv11","ss01";letter-spacing:-.003em}
+.header{padding:20px 2px 10px}
+.brand{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.sub{font-family:var(--font);font-size:12.5px;color:var(--muted);font-weight:500}
+.brandMark{height:42px}
+.iconbtn{border-radius:12px;width:42px;height:42px;transition:transform .15s,box-shadow .15s}
+.iconbtn:hover{transform:translateY(-1px)}
+.calbar{height:3px;border-radius:3px;opacity:.9}
+
+/* Cards */
+.card{border:1px solid var(--line);border-top:3px solid var(--sp,var(--line-strong));border-left:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:14px 0}
+.card[class*="spine-"]{border-left-color:var(--line)}
+.card.spine-calc{--sp:var(--cyan)}.card.spine-materials,.card.spine-factory{--sp:var(--amber)}
+.card.spine-orders{--sp:#475569}.card.spine-production{--sp:var(--magenta)}
+.card.spine-reports{--sp:#6366F1}.card.spine-sync{--sp:var(--ok)}
+h2{font-size:17px;font-weight:700;letter-spacing:-.2px;margin-bottom:6px}
+.section-desc{font-size:13.5px}
+.layer{border-radius:12px;background:color-mix(in srgb,var(--line) 35%,transparent)}
+
+/* Inputs */
+label{font-size:12.5px;font-weight:600;color:var(--muted)}
+input,select{height:46px;border-radius:10px;font-size:15px;transition:border-color .15s,box-shadow .15s,background .15s}
+input:hover,select:hover{border-color:var(--line-strong)}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 4px color-mix(in srgb,var(--cyan) 18%,transparent)}
+.slider{transition:.2s}
+.switch input:checked+.slider{background:var(--grad)}
+
+/* Buttons */
+.calculate{height:52px;border-radius:12px;background:var(--grad);color:#fff;font-weight:700;font-size:15.5px;letter-spacing:.1px;box-shadow:0 6px 16px color-mix(in srgb,var(--cyan) 35%,transparent);transition:transform .15s,box-shadow .15s,filter .15s}
+body.dark .calculate{background:var(--grad);color:#fff}
+.calculate:hover{transform:translateY(-1px);filter:brightness(1.05);box-shadow:0 10px 22px color-mix(in srgb,var(--cyan) 40%,transparent)}
+.calculate:active{transform:translateY(0) scale(.99)}
+.savebtn{height:42px;border-radius:10px;font-weight:600;transition:background .15s,border-color .15s,transform .15s}
+.savebtn:hover{background:color-mix(in srgb,var(--cyan) 8%,var(--card));border-color:var(--cyan);transform:translateY(-1px)}
+.dangerbtn{border-radius:10px;transition:background .15s}
+.dangerbtn:hover{background:color-mix(in srgb,var(--danger) 10%,transparent)}
+.subnav{border-radius:12px;padding:4px;background:color-mix(in srgb,var(--line) 55%,var(--card))}
+.subnavbtn{border-radius:9px;font-weight:600;transition:background .15s,color .15s}
+.subnavbtn.active{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+body.dark .subnavbtn.active{background:var(--cyan);color:#06121A}
+
+/* Results */
+.resultTop{display:flex;gap:10px;border:0;overflow:visible;margin-bottom:8px}
+.metric{flex:1;padding:16px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--cyan) 5%,var(--card))}
+.metric:last-child{border:1px solid var(--line)}
+.metric small{font-weight:600}
+.metric strong{font-family:var(--font);font-size:22px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.cost-card strong,.table td{font-family:var(--font);font-variant-numeric:tabular-nums}
+.cost-card{padding:12px 4px;transition:background .12s}
+.cost-card:hover{background:color-mix(in srgb,var(--cyan) 5%,transparent)}
+.primary-result{border:0;border-radius:14px;background:var(--grad);padding:16px 18px;margin-top:10px}
+.primary-result small,.primary-result strong{color:#fff}
+.primary-result strong{font-size:22px}
+.table th{font-size:11px;letter-spacing:.5px}
+.table tbody tr{transition:background .12s}
+.table tbody tr:hover{background:color-mix(in srgb,var(--cyan) 5%,transparent)}
+.table .total td{border-color:var(--line-strong)}
+.orderItem{border-radius:14px;transition:box-shadow .15s,transform .15s}
+.orderItem:hover{box-shadow:var(--shadow)}
+.orderItem:before{border-left-style:solid;border-left-color:var(--cyan);border-radius:2px;opacity:.55}
+.clientReport{border-radius:14px}
+
+.card a,.note a,.hint a{color:var(--cyan);font-weight:600}
+/* Page entrance on navigation */
+@keyframes pgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page.active{animation:pgIn .28s ease both}
+@media(prefers-reduced-motion:reduce){.page.active{animation:none}*{transition:none!important}}
+
+/* Navigation: dark panel, glowing active item */
+.appnav{background:linear-gradient(180deg,#12213A 0%,#0C1628 100%);border:0;border-radius:18px;box-shadow:0 14px 34px rgba(8,16,32,.28)}
+.navbtn{color:#9FB0C8;font-weight:600;transition:background .15s,color .15s}
+.navbtn:hover{background:rgba(255,255,255,.07);color:#fff}
+.navbtn.active,body.dark .navbtn.active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(14,134,176,.45)}
+
+@media(min-width:860px){
+  .app{max-width:1220px;grid-template-columns:248px minmax(0,1fr);column-gap:26px}
+  .app>.appnav{padding:12px;gap:4px;top:16px}
+  .navbtn{height:48px;font-size:14.5px;border-radius:12px;padding:0 14px}
+  .navbtn svg{width:20px;height:20px}
+}
+@media(max-width:859px){
+  .appnav{display:flex;overflow-x:auto;gap:6px;padding:7px;border-radius:16px;scrollbar-width:none;-webkit-overflow-scrolling:touch;top:6px}
+  .appnav::-webkit-scrollbar{display:none}
+  .navbtn{flex:0 0 auto;width:78px;height:58px;font-size:10.5px;border-radius:12px;gap:4px}
+  .navbtn svg{width:20px;height:20px}
+  .card{padding:18px}
+}
+@media(max-width:480px){.resultTop{flex-direction:column}.metric,.metric:last-child{border:1px solid var(--line)}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
@@ -2689,7 +2795,7 @@ function showPage(target){
   const page=document.getElementById(target);
   if(page)page.classList.add("active");
   const btn=document.querySelector(`.navbtn[data-page="${target}"]`);
-  if(btn)btn.classList.add("active");
+  if(btn){btn.classList.add("active"); try{ if(window.innerWidth<860)btn.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"}); }catch(e){}}
   if(target==="productionPage"){renderProductionOrderSelect();}
   if(target==="productionListPage"){renderProductionList();}
   if(target==="reportsPage"){renderReports();}

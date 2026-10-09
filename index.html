@@ -376,7 +376,7 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
         g("authBack").onclick=function(e){e.preventDefault();g("authForm").classList.add("hidden");g("authChoice").classList.remove("hidden")};
       })();
       </script>
-      <div class="lgGuar">New here? Try everything free for 3 days, cancel anytime before the trial ends. Then a monthly or yearly plan, with a 7-day money-back guarantee.</div>
+      <div class="lgGuar">New here? Try everything free for 3 days, cancel anytime before the trial ends. Then a monthly or yearly plan, with a 7-day money-back guarantee.<br>By continuing you agree to our <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</div>
     </div>
   </div>
 </div>
@@ -443,7 +443,7 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
         <div>Signed in as <b id="licenseEmail"></b></div>
         <div class="lkLinks"><a href="#" id="licenseResend">Resend verification email</a><a href="#" id="licenseSignOut">Sign out</a></div>
       </div>
-      <div class="lkGuar">After you start your trial or pay, this screen unlocks by itself within a few seconds. Pay with the same email you signed up with. 7-day money-back guarantee.</div>
+      <div class="lkGuar"><a href="/terms.html" target="_blank" rel="noopener">Terms</a> · <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a><br>After you start your trial or pay, this screen unlocks by itself within a few seconds. Pay with the same email you signed up with. 7-day money-back guarantee.</div>
     </section>
   </div>
 </div>
@@ -795,6 +795,7 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
     <div class="actions"><button class="dangerbtn" id="planCancelConfirm">Yes, cancel my subscription</button><button class="savebtn" id="planCancelKeep">Keep my plan</button></div>
   </div>
   <div id="planMsg" class="note hidden"></div>
+  <div class="hint" style="margin-top:12px"><a href="/terms.html" target="_blank" rel="noopener">Terms of Service</a> · <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a></div>
 </section>
 </div>
 
@@ -2622,12 +2623,18 @@ async function loadPlan(){
     const subs=(data.subscriptions&&(data.subscriptions.primary?[data.subscriptions.primary]:[]).concat(data.subscriptions.active||[]))||[];
     const sub=subs[0]||null; planSub=sub;
     if(!sub){ body.innerHTML=(d&&d.active)?"<b>Active.</b> No recurring subscription found for this account.":"<b>No active plan.</b>"; return; }
+    console.log("[plan] subscription data",JSON.stringify(sub),"payments",JSON.stringify(data.payments).slice(0,300));
+    const pays=Array.isArray(data.payments)?data.payments:((data.payments&&(data.payments.items||data.payments.payments))||[]);
+    // Free trial = Freemius says so, or an active subscription with no payment taken yet.
+    const trial=!!(sub.isTrial||sub.isTrialing||sub.trialEndsAt||sub.trial_ends_at||sub.trial||(sub.isActive&&!sub.cancelledAt&&pays.length===0));
     const canceled=!!sub.cancelledAt;
     const date=sub.renewalDate?new Date(sub.renewalDate).toLocaleDateString():"";
     const cycle=sub.billingCycle?(" ("+sub.billingCycle+")"):"";
     body.innerHTML="<b>"+(sub.planTitle||"FlexoCalculator")+cycle+"</b><br>"+
       (sub.renewalAmount?(String(sub.currency||"").toUpperCase()+" "+sub.renewalAmount+" per period<br>"):"")+
-      (canceled?("Cancelled. Active until <b>"+date+"</b>, then it stops."):("Active. Next renewal: <b>"+date+"</b>."));
+      (canceled?("Cancelled. Active until <b>"+date+"</b>, then it stops."+(trial?" You will not be charged.":"")):
+       trial?('<span style="display:inline-block;background:#e8f4fa;color:#0b4258;border:1px solid #bfe1ef;border-radius:99px;padding:2px 10px;font-size:12.5px;font-weight:700;margin:2px 0 4px">Free trial</span><br>You are on your free trial. Your first payment'+(sub.renewalAmount?(" of <b>"+String(sub.currency||"").toUpperCase()+" "+sub.renewalAmount+"</b>"):"")+' will be taken on <b>'+date+'</b>. Cancel before then and you pay nothing.'):
+       ("Active. Next renewal: <b>"+date+"</b>."));
     if(!canceled&&sub.isActive&&sub.cancelRenewalUrl){
       body.innerHTML+='<div class="actions" style="margin-top:12px"><button class="dangerbtn" id="planCancelStart">Cancel subscription</button></div>';
       $("planCancelStart").onclick=()=>$("planCancelBox").classList.remove("hidden");

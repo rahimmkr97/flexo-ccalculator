@@ -203,6 +203,7 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
 </head>
 <body>
 <style id="loginCss">
+.agreeRow{display:flex;gap:10px;align-items:flex-start;margin:4px 0 14px;font-size:13.5px;line-height:1.45;color:var(--text);cursor:pointer;text-align:left}.agreeRow input{flex:none;width:20px;height:20px;margin:1px 0 0;accent-color:#0A7EA6;cursor:pointer}.agreeRow a{color:#0A7EA6;font-weight:600}
 .pwWrap{position:relative}.pwWrap input{padding-right:46px;width:100%}
 .pwEye{position:absolute;right:2px;top:0;height:46px;width:44px;border:0;background:transparent;color:#6B6B63;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .pwEye.on{color:#0A7EA6}.pwEye:focus-visible{outline:2px solid #0A7EA6;border-radius:8px}
@@ -341,6 +342,7 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
           <div class="field"><label>Email</label><input id="syncEmail" type="email" placeholder="you@company.com" autocomplete="username"></div>
           <div class="field"><label>Password</label><div class="pwWrap"><input id="syncPassword" type="password" placeholder="At least 6 characters" autocomplete="current-password"><button type="button" class="pwEye" data-eye="syncPassword" aria-label="Show password"><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z'/><circle cx='12' cy='12' r='3'/></svg></button></div></div>
           <div class="field" id="confirmField"><label>Confirm password</label><div class="pwWrap"><input id="syncPassword2" type="password" placeholder="Type the password again" autocomplete="new-password"><button type="button" class="pwEye" data-eye="syncPassword2" aria-label="Show password"><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z'/><circle cx='12' cy='12' r='3'/></svg></button></div></div>
+          <label class="agreeRow" id="agreeField"><input type="checkbox" id="agreeTerms"><span>I agree to the <a href="/terms.html" target="_blank" rel="noopener">Terms of Service</a> and the <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
           <div class="actions">
             <button class="calculate" id="syncSignIn" style="width:100%">Log in</button>
             <button class="calculate" id="syncSignUp" style="width:100%">Create account</button>
@@ -359,7 +361,7 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
           g("authTitle").textContent=su?"Create your account":"Log in";
           g("authSub").textContent=su?"Use your work email. After you confirm it, start your 3-day free trial with a card. Cancel anytime before it ends.":"Welcome back. Enter your email and password.";
           g("syncSignUp").classList.toggle("hidden",!su); g("syncSignIn").classList.toggle("hidden",su);
-          g("authForgot").classList.toggle("hidden",su); g("confirmField").classList.toggle("hidden",!su); g("syncPassword2").value="";
+          g("authForgot").classList.toggle("hidden",su); g("confirmField").classList.toggle("hidden",!su); g("agreeField").classList.toggle("hidden",!su); g("syncPassword2").value=""; g("agreeTerms").checked=false;
           g("syncPassword").setAttribute("autocomplete",su?"new-password":"current-password");
           g("authSwitchText").textContent=su?"Already have an account?":"New here?";
           g("authSwitch").textContent=su?"Log in":"Get started";
@@ -376,7 +378,7 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
         g("authBack").onclick=function(e){e.preventDefault();g("authForm").classList.add("hidden");g("authChoice").classList.remove("hidden")};
       })();
       </script>
-      <div class="lgGuar">New here? Try everything free for 3 days, cancel anytime before the trial ends. Then a monthly or yearly plan. <br>By continuing you agree to our <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</div>
+      <div class="lgGuar">New here? Try everything free for 3 days, cancel anytime before the trial ends. Then a monthly or yearly plan. </div>
     </div>
   </div>
 </div>
@@ -1123,6 +1125,7 @@ function syncSignUp(){
   if(!fbAuth)return;
   const email=$("syncEmail").value.trim(), pass=$("syncPassword").value;
   if(!email||pass.length<6)return showSyncAuthMessage("Enter an email and a password of at least 6 characters.","error");
+  if(!$("agreeTerms").checked)return showSyncAuthMessage("Please tick the box to agree to the Terms of Service and Privacy Policy.","error");
   if(pass!==$("syncPassword2").value)return showSyncAuthMessage("The two passwords don't match. Please type them again.","error");
   fbAuth.createUserWithEmailAndPassword(email,pass).then(cred=>{ try{ cred.user.sendEmailVerification(); }catch(e){} }).catch(err=>showSyncAuthMessage(err.message,"error"));
 }

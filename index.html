@@ -787,13 +787,12 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
 <div id="syncPage" class="page">
 <section class="card spine-sync" id="syncStatusCard">
   <h2>Account</h2>
-  <div class="section-desc">Your data is saved to your account and kept in sync on every device where you sign in.</div>
+  <div class="section-desc">Your data is saved automatically to your account and kept in sync on every device where you sign in.</div>
   <div class="cost-result">
     <div class="cost-card"><small>Signed in as</small><strong id="syncUserEmail">—</strong></div>
     <div class="cost-card"><small>Status</small><strong id="syncStatusText">—</strong></div>
   </div>
   <div class="actions" style="margin-top:12px">
-    <button class="savebtn" id="syncNow">Sync now</button>
     <button class="dangerbtn" id="syncSignOut">Sign out</button>
   </div>
 </section>
@@ -937,7 +936,7 @@ function pushStateNow(){
   return fbDb.collection("users").doc(fbUser.uid).collection("app").doc("state").set({
     blob, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), device: deviceId
   }).then(()=>setSyncStatus("Synced just now"))
-    .catch(err=>setSyncStatus("Sync error: "+err.message));
+    .catch(err=>{ lastPushedBlob=null; setSyncStatus("Offline: will retry automatically"); });
 }
 
 function setSyncStatus(text){
@@ -2745,7 +2744,11 @@ $("syncPassword").addEventListener("keydown",e=>{ if(e.key==="Enter")($("syncSig
 $("saveCompany").onclick=saveCompanyProfile;
 $("removeCompanyLogo").onclick=removeCompanyLogo;
 $("companyLogoFile").onchange=handleCompanyLogoFile;
-$("syncNow").onclick=()=>{lastPushedBlob=null;pushStateNow();};
+// Automatic sync: save shortly after each change, retry on failure, flush when leaving/hiding the app.
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden"){ clearTimeout(pushTimer); pushStateNow(); } });
+window.addEventListener("pagehide",()=>{ clearTimeout(pushTimer); pushStateNow(); });
+window.addEventListener("online",()=>{ lastPushedBlob=null; pushStateNow(); });
+setInterval(()=>{ if(navigator.onLine)pushStateNow(); },30000);
 loadMaterialDensities();
 renderMaterialDatabase();
 renderInkGlueTable();

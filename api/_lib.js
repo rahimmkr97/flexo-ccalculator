@@ -73,7 +73,11 @@ async function syncLicense(licenseId) {
   if (!purchase) return;
   const rec = purchase.toEntitlementRecord();
   const expired = rec.expiration && new Date(rec.expiration) < new Date();
-  const active = !expired && !rec.isCanceled;
+  // Subscriptions: a cancelled plan keeps working until the period they already paid for ends.
+  // One-time purchases: active unless refunded/cancelled.
+  const active = rec.type === "subscription"
+    ? (rec.expiration ? !expired : !rec.isCanceled)
+    : (!expired && !rec.isCanceled);
   const email = norm(purchase.email);
   await db.doc(`entitlements/${String(licenseId)}`).set(
     {

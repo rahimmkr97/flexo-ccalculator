@@ -49,7 +49,7 @@ async function writeAccess(uid, active, reason, trialEnds) {
   await db.doc(`users/${uid}/meta/license`).set(data, { merge: true });
 }
 
-const TRIAL_DAYS = () => Math.max(0, Number(process.env.TRIAL_DAYS || 7));
+const TRIAL_DAYS = () => Math.max(0, Number(process.env.TRIAL_DAYS || 0));
 
 // Decide access for one email: a paid license wins, otherwise the free trial (one per email address).
 // allowTrial=true is passed only when the customer themselves opens the app (checkLicense),
@@ -96,8 +96,9 @@ async function applyEmailAccess(email, allowTrial) {
 async function syncLicense(licenseId) {
   const fs = await freemius();
   const purchase = await fs.purchase.retrievePurchase(String(licenseId));
-  if (!purchase) return;
+  if (!purchase) { console.log("[syncLicense] no purchase for license", String(licenseId)); return; }
   const rec = purchase.toEntitlementRecord();
+  console.log("[syncLicense]", String(licenseId), JSON.stringify(rec));
   const expired = rec.expiration && new Date(rec.expiration) < new Date();
   // Subscriptions: a cancelled plan keeps working until the period they already paid for ends.
   // One-time purchases: active unless refunded/cancelled.

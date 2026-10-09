@@ -288,6 +288,25 @@ body.dark .subnavbtn.active{background:var(--cyan);color:#06121A}
 .clientReport{border-radius:14px}
 
 .card a,.note a,.hint a{color:var(--cyan);font-weight:600}
+
+/* App background: soft CMYK colour glows + fine halftone dot grid */
+body{
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(1000px 520px at 6% -6%,rgba(23,162,207,.20),transparent 62%),
+    radial-gradient(760px 480px at 102% 2%,rgba(196,30,107,.09),transparent 62%),
+    radial-gradient(900px 620px at 96% 104%,rgba(255,200,0,.13),transparent 62%),
+    radial-gradient(rgba(15,27,45,.085) 1.1px,transparent 1.6px);
+  background-size:auto,auto,auto,20px 20px;
+  background-attachment:fixed;
+}
+body.dark{
+  background-image:
+    radial-gradient(1000px 520px at 6% -6%,rgba(56,182,223,.17),transparent 62%),
+    radial-gradient(760px 480px at 102% 2%,rgba(229,79,147,.10),transparent 62%),
+    radial-gradient(900px 620px at 96% 104%,rgba(221,162,78,.08),transparent 62%),
+    radial-gradient(rgba(255,255,255,.055) 1.1px,transparent 1.6px);
+}
 /* Page entrance on navigation */
 @keyframes pgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .page.active{animation:pgIn .28s ease both}

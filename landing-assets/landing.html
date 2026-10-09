@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FlexoCalculator — Calculez le coût réel de chaque commande flexo</title>
+<meta name="description" content="Calcul de coût de production, commandes, fiches de production PDF et suivi des pertes pour imprimeurs flexo et fabricants d'emballages souples.">
+<meta property="og:title" content="FlexoCalculator — le vrai coût de chaque commande flexo">
+<meta property="og:description" content="Coût au mille, marge, fiche de production PDF et suivi des pertes. Pour imprimeurs flexo et emballages souples.">
+<meta property="og:image" content="landing-assets/cover.jpg">
+<style>
+:root{--ink:#0c1822;--ink2:#14232f;--line:#e4e0d6;--bg:#f6f3ec;--text:#1a1a18;--muted:#5f5f58;--cy:#0A9FD1;--cy2:#0A7EA6;--mg:#D6246E;--yl:#E8B820}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;color:var(--text);background:var(--bg);line-height:1.55}
+a{color:inherit}.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.inks{display:flex;height:6px}.inks i{flex:1}
+header.top{background:var(--ink);color:#fff}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;text-decoration:none}
+.logo svg{width:34px;height:34px}
+.navr{display:flex;gap:10px;align-items:center}
+.lang{background:transparent;border:1px solid #3a5163;color:#cfe0ea;border-radius:8px;padding:7px 11px;font:inherit;font-size:13px;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:50px;padding:0 26px;border-radius:10px;font-weight:700;font-size:16px;text-decoration:none;border:0;cursor:pointer}
+.btn.p{background:var(--cy);color:#04141c}.btn.p:hover{background:#27b4e3}
+.btn.g{background:transparent;color:#fff;border:1px solid #3a5163}.btn.sm{height:40px;padding:0 16px;font-size:14px}
+.hero{background:var(--ink);color:#fff;padding:34px 0 70px;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(900px 400px at 85% 10%,rgba(10,159,209,.22),transparent 60%),radial-gradient(600px 300px at 0% 100%,rgba(214,36,110,.16),transparent 60%)}
+.hg{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:44px;align-items:center}
+h1{font-size:clamp(32px,5vw,54px);line-height:1.06;margin:0 0 16px;letter-spacing:-1px;font-weight:800}
+.lead{font-size:18px;color:#b9cbd6;max-width:520px;margin:0 0 26px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.trust{margin-top:18px;font-size:13.5px;color:#8fa6b4;display:flex;gap:6px 18px;flex-wrap:wrap}
+.shot{border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.16);box-shadow:0 30px 70px rgba(0,0,0,.5)}.shot img{display:block;width:100%;height:auto}
+section{padding:64px 0}
+h2{font-size:clamp(26px,3.6vw,38px);line-height:1.15;margin:0 0 12px;letter-spacing:-.6px}
+.sub{color:var(--muted);font-size:17px;max-width:640px;margin:0 0 34px}
+.pain{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pc{padding:20px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.pc b{display:block;margin-bottom:6px;font-size:17px}.pc span{color:var(--muted);font-size:15px}
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.f{display:flex;gap:14px;padding:18px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.f .ic{flex:none;width:40px;height:40px;border-radius:10px;background:var(--ink);display:flex;align-items:center;justify-content:center}
+.f .ic svg{width:22px;height:22px;stroke:#8fd3f0;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f b{display:block;font-size:17px;margin-bottom:3px}.f span{color:var(--muted);font-size:15px}
+.show{background:var(--ink);color:#fff}.show .sub{color:#9fb5c2}
+.phones{display:flex;gap:22px;justify-content:center;flex-wrap:wrap}
+.ph{width:250px;border-radius:30px;background:#000;padding:8px;box-shadow:0 24px 50px rgba(0,0,0,.5)}.ph div{border-radius:23px;overflow:hidden}.ph img{display:block;width:100%;height:auto}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:s}
+.st{padding:22px;background:#fff;border:1px solid var(--line);border-radius:12px;counter-increment:s}
+.st:before{content:counter(s);display:flex;width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;align-items:center;justify-content:center;font-weight:800;margin-bottom:10px}
+.st b{display:block;margin-bottom:4px;font-size:17px}.st span{color:var(--muted);font-size:15px}
+.price{background:#fff;border-top:1px solid var(--line)}
+.pr{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:720px}
+.pl{padding:26px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.pl.hl{border:2px solid var(--cy2);background:#fff;position:relative}
+.pl .tag{position:absolute;top:-12px;right:16px;background:var(--cy2);color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
+.pl h3{margin:0 0 4px;font-size:18px}.pl .amt{font-size:38px;font-weight:800;letter-spacing:-1px}.pl .amt small{font-size:15px;font-weight:500;color:var(--muted)}
+.pl ul{list-style:none;padding:0;margin:14px 0 18px;color:var(--muted);font-size:15px}.pl li{padding:3px 0 3px 22px;position:relative}.pl li:before{content:"✓";position:absolute;left:0;color:var(--cy2);font-weight:800}
+.pl .btn{width:100%}.note{margin-top:14px;font-size:14px;color:var(--muted)}
+details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:700}details p{margin:10px 0 0;color:var(--muted)}
+.final{background:var(--ink);color:#fff;text-align:center;padding:64px 0}.final .lead{margin:0 auto 24px}
+footer{background:#08121a;color:#7f95a3;font-size:13.5px;padding:24px 0}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+:focus-visible{outline:3px solid var(--yl);outline-offset:2px}
+@media(max-width:860px){.hg{grid-template-columns:1fr}.pg,.steps,.feat,.pr{grid-template-columns:1fr}.hero{padding-bottom:44px}section{padding:46px 0}.cta .btn{flex:1}}
+</style>
+</head>
+<body>
+<div class="inks"><i style="background:#0A9FD1"></i><i style="background:#D6246E"></i><i style="background:#E8B820"></i><i style="background:#1a1a18"></i></div>
+<header class="top"><div class="wrap nav">
+  <a class="logo" href="#"><svg viewBox="0 0 48 48" fill="none" stroke="#18b5e6" stroke-width="2.4"><circle cx="24" cy="24" r="14"/><circle cx="24" cy="24" r="4.5"/><path d="M24 2v6M24 40v6M2 24h6M40 24h6"/></svg>FlexoCalculator</a>
+  <div class="navr"><button class="lang" id="langBtn" aria-label="Language">English</button><a class="btn g sm" href="/" data-i="login">Connexion</a></div>
+</div></header>
+
+<main>
+<div class="hero"><div class="wrap hg">
+  <div>
+    <h1 data-i="h1">Sachez ce que coûte vraiment chaque commande, avant de donner votre prix.</h1>
+    <p class="lead" data-i="lead">Le calcul de coût conçu pour les imprimeurs flexo et les fabricants d'emballages souples : matière, encre, clichés, gâche et temps machine dans un seul calcul.</p>
+    <div class="cta"><a class="btn p" href="/" data-i="cta1">Essai gratuit de 7 jours</a><a class="btn g" href="#how" data-i="cta2">Voir comment ça marche</a></div>
+    <div class="trust"><span data-i="t1">Créé par une vraie imprimerie flexo</span><span data-i="t2">7 jours d'essai gratuit, sans carte bancaire</span><span data-i="t3">Résiliable à tout moment</span></div>
+  </div>
+  <div class="shot"><img src="landing-assets/cover.jpg" alt="FlexoCalculator" width="1280" height="720"></div>
+</div></div>
+
+<section class="pain"><div class="wrap">
+  <h2 data-i="ph">Vous devinez encore vos prix ?</h2>
+  <p class="sub" data-i="ps">Un devis trop bas fait perdre de l'argent sur chaque bobine. Un devis trop haut fait perdre le client.</p>
+  <div class="pg">
+    <div class="pc"><b data-i="p1t">Des coûts éparpillés</b><span data-i="p1d">Excel, calculatrice, carnet : chaque devis prend du temps et les erreurs s'accumulent.</span></div>
+    <div class="pc"><b data-i="p2t">Des pertes invisibles</b><span data-i="p2d">Calage, gâche, complexage, refente : sans suivi, vous ne savez pas où part la matière.</span></div>
+    <div class="pc"><b data-i="p3t">Une marge au hasard</b><span data-i="p3d">Sans le coût réel au mille, impossible de fixer une marge sûre.</span></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2 data-i="fh">Tout ce qu'il faut pour chiffrer et suivre vos commandes</h2>
+  <p class="sub" data-i="fs">Un seul outil, sur ordinateur comme sur téléphone, avec vos données synchronisées.</p>
+  <div class="feat">
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12h0M8 16h2M12 16h4"/></svg></div><div><b data-i="f1t">Coût en quelques secondes</b><span data-i="f1d">Structure du film, laize, métrage ou poids : le coût de matière, d'impression et de complexage est calculé pour vous.</span></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 21V11l5 3V9l5 3V6l8 5v10z"/></svg></div><div><b data-i="f2t">Vos frais d'usine inclus</b><span data-i="f2d">Électricité, salaires, loyer et cadence machine : renseignez-les une fois, chaque calcul s'en sert.</span></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></div><div><b data-i="f3t">Fiche de production PDF</b><span data-i="f3d">Générez l'ordre de fabrication avec votre logo, en français ou en anglais, prêt à imprimer pour l'atelier.</span></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V4M4 20h16M8 16l4-5 3 3 5-7"/></svg></div><div><b data-i="f4t">Suivi des pertes</b><span data-i="f4d">Imprimé, complexé, découpé : voyez la perte réelle à chaque étape et par commande.</span></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div><div><b data-i="f5t">Ordinateur et téléphone</b><span data-i="f5d">Fonctionne dans le navigateur et s'installe comme une application. Vos données se synchronisent.</span></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><div><b data-i="f6t">Vos données restent à vous</b><span data-i="f6d">Compte personnel sécurisé : vos prix et vos clients ne sont visibles que par vous.</span></div></div>
+  </div>
+</div></section>
+
+<section class="show"><div class="wrap">
+  <h2 data-i="sh">Simple à utiliser sur l'atelier</h2>
+  <p class="sub" data-i="ss">Pensé pour le téléphone : saisissez, calculez, enregistrez.</p>
+  <div class="phones"><div class="ph"><div><img src="landing-assets/app1.jpg" alt="Calcul de matière"></div></div><div class="ph"><div><img src="landing-assets/app2.jpg" alt="Suivi de production"></div></div></div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <h2 data-i="hh">Prêt en trois étapes</h2><p class="sub" data-i="hs">Pas d'installation compliquée.</p>
+  <div class="steps">
+    <div class="st"><b data-i="s1t">Créez votre compte</b><span data-i="s1d">Inscription en moins d'une minute avec votre e-mail.</span></div>
+    <div class="st"><b data-i="s2t">Réglez vos prix</b><span data-i="s2d">Matières, encres et frais d'usine : une seule fois.</span></div>
+    <div class="st"><b data-i="s3t">Calculez et suivez</b><span data-i="s3d">Chiffrez chaque commande et suivez la production et les pertes.</span></div>
+  </div>
+</div></section>
+
+<section class="price" id="price"><div class="wrap">
+  <h2 data-i="prh">Un abonnement simple</h2><p class="sub" data-i="prs">Toutes les fonctions incluses. Choisissez mensuel ou annuel, résiliable à tout moment.</p>
+  <div class="pr">
+    <div class="pl"><h3 data-i="m">Mensuel</h3><div class="amt">$10<small data-i="pm"> / mois</small></div><ul><li data-i="b1">Toutes les fonctions</li><li data-i="b2">Mises à jour incluses</li></ul><a class="btn p" href="/" data-i="cta1">Essai gratuit de 7 jours</a></div>
+    <div class="pl hl"><span class="tag" data-i="best">Meilleur prix</span><h3 data-i="y">Annuel</h3><div class="amt">$100<small data-i="py"> / an</small></div><ul><li data-i="b1">Toutes les fonctions</li><li data-i="b3">Économisez 16 %</li></ul><a class="btn p" href="/" data-i="cta1">Essai gratuit de 7 jours</a></div>
+  </div>
+  <p class="note" data-i="pn">Essayez gratuitement pendant 7 jours, sans carte bancaire. Ensuite, garantie 7 jours satisfait ou remboursé. Paiement sécurisé par Freemius.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2 data-i="qh">Questions fréquentes</h2><p class="sub"></p>
+  <details><summary data-i="q1">Pour quel type d'imprimerie ?</summary><p data-i="a1">Imprimeurs flexo sur film plastique, avec complexage et refente : emballages souples, sacs, étiquettes et manchons.</p></details>
+  <details><summary data-i="q2">Dois-je installer quelque chose ?</summary><p data-i="a2">Non. FlexoCalculator fonctionne dans le navigateur. Vous pouvez l'ajouter à l'écran d'accueil de votre téléphone ou de votre ordinateur.</p></details>
+  <details><summary data-i="q3">Mes données sont-elles protégées ?</summary><p data-i="a3">Oui. Chaque compte est personnel et protégé par mot de passe, et vos données ne sont visibles que par vous.</p></details>
+  <details><summary data-i="q6">L'essai gratuit demande-t-il une carte bancaire ?</summary><p data-i="a6">Non. Créez votre compte, confirmez votre e-mail et profitez de toutes les fonctions pendant 7 jours. Vous ne payez que si vous continuez.</p></details>
+  <details><summary data-i="q4">Puis-je annuler ?</summary><p data-i="a4">À tout moment. Et si l'outil ne vous convient pas, vous êtes remboursé dans les 7 jours.</p></details>
+  <details><summary data-i="q5">Quelle monnaie et quelle langue ?</summary><p data-i="a5">Vous choisissez votre monnaie (DA, MAD, TND, €, $…). La fiche de production PDF est disponible en français et en anglais.</p></details>
+</div></section>
+
+<div class="final"><div class="wrap">
+  <h2 data-i="fnh">Chiffrez votre prochaine commande avec le vrai coût.</h2>
+  <p class="lead" data-i="fns">Créez votre compte gratuitement et calculez votre première commande aujourd'hui.</p>
+  <a class="btn p" href="/" data-i="cta1">Essai gratuit de 7 jours</a>
+</div></div>
+</main>
+<footer><div class="wrap"><span>© FlexoCalculator</span><span><a href="/terms.html" data-i="terms">Conditions</a> · <a href="/privacy.html" data-i="priv">Confidentialité</a></span></div></footer>
+
+<script>
+(function(){
+var EN={login:"Log in",h1:"Know what every order really costs, before you quote.",lead:"Costing built for flexo printers and flexible-packaging converters: material, ink, plates, waste and machine time in one calculation.",cta1:"Start your 7-day free trial",cta2:"See how it works",t1:"Built by a working flexo printing company",t2:"7-day free trial, no card needed",t3:"Cancel anytime",
+ph:"Still guessing your prices?",ps:"A quote that is too low loses money on every reel. One that is too high loses the customer.",p1t:"Scattered costs",p1d:"Excel, calculator, notebook: every quote takes time and errors pile up.",p2t:"Invisible losses",p2d:"Setup, waste, lamination, slitting: without tracking you can't see where the material goes.",p3t:"Margin by guesswork",p3d:"Without the real cost per thousand, you can't set a safe margin.",
+fh:"Everything you need to cost and track your orders",fs:"One tool, on desktop and phone, with your data in sync.",f1t:"Cost in seconds",f1d:"Film structure, width, length or weight: material, printing and lamination cost calculated for you.",f2t:"Your factory costs included",f2d:"Electricity, salaries, rent and press output: enter them once and every calculation uses them.",f3t:"Production sheet PDF",f3d:"Generate the work order with your logo, in French or English, ready to print for the shop floor.",f4t:"Waste tracking",f4d:"Printed, laminated, slit: see the real loss at every step and per order.",f5t:"Desktop and phone",f5d:"Works in the browser and installs like an app. Your data stays in sync.",f6t:"Your data stays yours",f6d:"A secure personal account: your prices and customers are visible only to you.",
+sh:"Simple to use on the shop floor",ss:"Designed for the phone: enter, calculate, save.",hh:"Ready in three steps",hs:"No complicated setup.",s1t:"Create your account",s1d:"Sign up in under a minute with your email.",s2t:"Set your prices",s2d:"Materials, inks and factory costs: just once.",s3t:"Calculate and track",s3d:"Cost every order and follow production and waste.",
+prh:"One simple subscription",prs:"All features included. Choose monthly or yearly, cancel anytime.",m:"Monthly",pm:" / month",y:"Yearly",py:" / year",b1:"All features",b2:"Updates included",b3:"Save 16%",best:"Best value",pn:"Try it free for 7 days, no card needed. After that, 7-day money-back guarantee. Secure payment by Freemius.",
+qh:"Frequently asked questions",q1:"Which printers is it for?",a1:"Flexo printers on plastic film, with lamination and slitting: flexible packaging, bags, labels and sleeves.",q2:"Do I need to install anything?",a2:"No. FlexoCalculator runs in the browser. You can add it to your phone or computer home screen.",q3:"Is my data protected?",a3:"Yes. Each account is personal and password-protected, and your data is visible only to you.",q6:"Does the free trial need a credit card?",a6:"No. Create your account, confirm your email and use every feature for 7 days. You only pay if you decide to continue.",q4:"Can I cancel?",a4:"Anytime. And if it isn't right for you, you get a refund within 7 days.",q5:"Which currency and language?",a5:"You choose your currency (DA, MAD, TND, €, $…). The production sheet PDF is available in French and English.",
+fnh:"Cost your next order with the real numbers.",fns:"Create your account and calculate your first order today.",terms:"Terms",priv:"Privacy"};
+var els=document.querySelectorAll("[data-i]"),FR={};els.forEach(function(e){FR[e.dataset.i]=FR[e.dataset.i]||e.textContent});
+var cur="fr";
+function set(l){cur=l;document.documentElement.lang=l;els.forEach(function(e){var v=l==="en"?EN[e.dataset.i]:FR[e.dataset.i];if(v!=null)e.textContent=v});document.getElementById("langBtn").textContent=l==="en"?"Français":"English";try{localStorage.setItem("lp_lang",l)}catch(e){}}
+document.getElementById("langBtn").onclick=function(){set(cur==="fr"?"en":"fr")};
+var s=null;try{s=localStorage.getItem("lp_lang")}catch(e){}
+if(s==="en"||(!s&&(navigator.language||"").toLowerCase().indexOf("en")===0))set("en");
+})();
+</script>
+</body></html>

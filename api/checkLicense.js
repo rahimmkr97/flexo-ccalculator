@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
       await writeAccess(user.uid, true, "");
       return res.json({ active: true });
     }
-    const active = await applyEmailAccess(email);
+    const active = await applyEmailAccess(email, user.email_verified === true);
     if (!active) {
       return res.json({ active: false, reason: user.email_verified === true ? "" : "Confirm your email first." });
     }

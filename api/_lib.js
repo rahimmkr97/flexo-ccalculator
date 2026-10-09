@@ -42,28 +42,54 @@ async function requireUser(req, res) {
   }
 }
 
-async function writeAccess(uid, active, reason) {
-  await db.doc(`users/${uid}/meta/license`).set(
-    { active, reason: reason || "", checkedAt: Date.now() },
-    { merge: true }
-  );
+async function writeAccess(uid, active, reason, trialEnds) {
+  const data = { active, reason: reason || "", checkedAt: Date.now() };
+  // trialEnds is set only while a free trial is what grants access; paid access clears it.
+  data.trialEnds = trialEnds ? trialEnds : admin.firestore.FieldValue.delete();
+  await db.doc(`users/${uid}/meta/license`).set(data, { merge: true });
 }
 
-// Decide access for one email from the stored purchases, and update that user's access doc.
-async function applyEmailAccess(email) {
+const TRIAL_DAYS = () => Math.max(0, Number(process.env.TRIAL_DAYS || 7));
+
+// Decide access for one email: a paid license wins, otherwise the free trial (one per email address).
+// allowTrial=true is passed only when the customer themselves opens the app (checkLicense),
+// so webhook events never start a trial by accident.
+async function applyEmailAccess(email, allowTrial) {
   email = norm(email);
   if (!email) return false;
   const snap = await db.collection("entitlements").where("email", "==", email).get();
-  const active = snap.docs.some((d) => d.data().active === true);
+  const paid = snap.docs.some((d) => d.data().active === true);
   let user = null;
   try { user = await admin.auth().getUserByEmail(email); } catch (e) { /* not signed up yet */ }
-  if (!user) return active;
-  if (active && !user.emailVerified) {
-    await writeAccess(user.uid, false, "Payment found. Confirm your email (check your inbox), then press \"I've paid, refresh\".");
+  if (!user) return paid;
+  if (paid && user.emailVerified) {
+    await writeAccess(user.uid, true, "");
+    return true;
+  }
+  if (paid && !user.emailVerified) {
+    await writeAccess(user.uid, false, "Payment found. Confirm your email (check your inbox), then press \"Refresh\".");
     return false;
   }
-  await writeAccess(user.uid, active, active ? "" : "No payment found for this email yet.");
-  return active;
+  // No paid license: free trial?
+  const days = TRIAL_DAYS();
+  if (days > 0 && user.emailVerified) {
+    const ref = db.doc(`trials/${encodeURIComponent(email)}`);
+    let t = (await ref.get()).data();
+    if (!t && allowTrial) {
+      t = { start: Date.now(), end: Date.now() + days * 86400000 };
+      await ref.set(t);
+    }
+    if (t) {
+      if (t.end > Date.now()) {
+        await writeAccess(user.uid, true, "", t.end);
+        return true;
+      }
+      await writeAccess(user.uid, false, "Your free trial has ended. Choose a monthly or yearly plan to keep going.");
+      return false;
+    }
+  }
+  await writeAccess(user.uid, false, days > 0 ? "" : "No payment found for this email yet.");
+  return false;
 }
 
 // Turn a Freemius purchase into an access record. One-time purchases stay active unless refunded/cancelled.

@@ -11,7 +11,14 @@ service cloud.firestore {
     // The customer's app data: only the owner, and only with active access.
     match /users/{uid}/app/{doc} {
       allow read, write: if request.auth != null && request.auth.uid == uid
-        && get(/databases/$(database)/documents/users/$(uid)/meta/license).data.active == true;
+        && get(/databases/$(database)/documents/users/$(uid)/meta/license).data.active == true
+        && (get(/databases/$(database)/documents/users/$(uid)/meta/license).data.get('trialEnds', null) == null
+            || request.time.toMillis() < get(/databases/$(database)/documents/users/$(uid)/meta/license).data.trialEnds);
+    }
+
+    // Free-trial records: server only.
+    match /trials/{id} {
+      allow read, write: if false;
     }
 
     // Payment records: server only.

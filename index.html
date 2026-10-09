@@ -239,6 +239,26 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
 #authGate .lgList{order:6;margin:0 0 14px}
 #authGate .lgTrust{order:7;display:flex;margin-top:4px}
 }
+#licenseGate{background:#0c1822;color:#e9f1f5}
+#licenseGate .lgBg{position:absolute;inset:0;z-index:0;overflow:hidden}
+#licenseGate .lgBg svg{position:absolute;width:100%;height:100%}
+#licenseGate .lgBg:after{content:"";position:absolute;inset:0;background:rgba(8,16,24,.84)}
+#licenseGate .lkWrap{position:relative;z-index:1;width:100%;max-width:440px;margin:auto;padding:12px 0}
+#licenseGate .lkBrand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px;font-size:22px;font-weight:700;color:#fff}
+#licenseGate .lkBrand img{width:40px;height:40px}
+#licenseGate .lkCard{background:var(--card);color:var(--text);border-radius:14px;padding:30px 26px 22px;box-shadow:0 30px 70px rgba(0,0,0,.5);border-top:5px solid;border-image:linear-gradient(90deg,#0A9FD1 0 25%,#D6246E 25% 50%,#E8B820 50% 75%,#1A1A18 75% 100%) 1;text-align:center}
+#licenseGate .lkIcon{width:54px;height:54px;border-radius:50%;background:#0c1822;color:#8fd3f0;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+#licenseGate .lkIcon svg{width:26px;height:26px}
+#licenseGate .lkCard h2{margin:0 0 8px;font-size:24px}
+#licenseGate .lkDesc{color:var(--muted);font-size:15px;line-height:1.5;margin-bottom:18px}
+#licenseGate .lkVerify{text-align:left;font-size:14px;line-height:1.45;background:#e8f4fa;color:#0b4258;border:1px solid #bfe1ef;border-radius:10px;padding:12px 14px;margin-bottom:16px}
+#licenseGate .lkBtn{display:block;width:100%;height:48px;margin:0 0 10px;padding:0}
+#licenseGate .lkCard .note{text-align:left;margin:4px 0 10px}
+#licenseGate .lkFoot{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+#licenseGate .lkFoot b{color:var(--text);word-break:break-all}
+#licenseGate .lkLinks{display:flex;justify-content:center;gap:18px;margin-top:8px;flex-wrap:wrap}
+#licenseGate .lkLinks a{font-size:13px;color:#0A7EA6;font-weight:600;text-decoration:none}#licenseGate .lkLinks a:hover{text-decoration:underline}
+#licenseGate .lkGuar{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.45}
 </style>
 <div id="authGate" style="position:fixed;inset:0;z-index:2000;overflow:auto;display:flex;padding:20px">
   <div class="lgBg"><svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -347,23 +367,65 @@ body.dark .orderTitle .orderCust{color:var(--cyan)}
     </div>
   </div>
 </div>
-<div id="licenseGate" class="hidden" style="position:fixed;inset:0;z-index:1900;overflow:auto;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
-  <div style="width:100%;max-width:420px">
-    <section class="card">
+<div id="licenseGate" class="hidden" style="position:fixed;inset:0;z-index:1900;overflow:auto;display:flex;padding:20px">
+  <div class="lgBg"><svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs>
+<linearGradient id="rl2" x1="0" x2="1"><stop offset="0" stop-color="#2a3d4b"/><stop offset=".35" stop-color="#8fb0c2"/><stop offset=".55" stop-color="#d9e8f0"/><stop offset="1" stop-color="#2a3d4b"/></linearGradient>
+<linearGradient id="cy2" x1="0" x2="1"><stop offset="0" stop-color="#075E79"/><stop offset=".5" stop-color="#18b5e6"/><stop offset="1" stop-color="#075E79"/></linearGradient>
+<linearGradient id="mg2" x1="0" x2="1"><stop offset="0" stop-color="#8e1049"/><stop offset=".5" stop-color="#ec3a8a"/><stop offset="1" stop-color="#8e1049"/></linearGradient>
+<linearGradient id="yl2" x1="0" x2="1"><stop offset="0" stop-color="#9a7410"/><stop offset=".5" stop-color="#f6cf3e"/><stop offset="1" stop-color="#9a7410"/></linearGradient>
+<linearGradient id="bk2" x1="0" x2="1"><stop offset="0" stop-color="#0a0a0a"/><stop offset=".5" stop-color="#4a4a4a"/><stop offset="1" stop-color="#0a0a0a"/></linearGradient>
+<pattern id="dots2" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.6" fill="#fff" opacity=".35"/></pattern>
+</defs>
+<rect width="1600" height="900" fill="#0c1822"/>
+<g opacity=".9">
+<path d="M0 470 C300 470 420 300 800 300 S1300 470 1600 470 L1600 540 C1300 540 1200 370 800 370 S300 540 0 540Z" fill="#e8eef1" opacity=".16"/>
+<path d="M0 470 C300 470 420 300 800 300 S1300 470 1600 470" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+<path d="M0 540 C300 540 420 370 800 370 S1300 540 1600 540" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/>
+<g>
+<path d="M120 480 L120 520 M340 440 L340 480 M560 360 L560 400" stroke="#d6246e" stroke-width="26" opacity=".55"/>
+<path d="M1040 360 L1040 400 M1260 440 L1260 480 M1480 480 L1480 520" stroke="#0A9FD1" stroke-width="26" opacity=".55"/>
+</g></g>
+<g transform="translate(180 90)">
+<g id="unit">
+<rect x="0" y="0" width="150" height="610" rx="6" fill="#16222c" stroke="#27394a"/>
+<rect x="470" y="0" width="150" height="610" rx="6" fill="#16222c" stroke="#27394a"/>
+<rect x="150" y="30" width="320" height="26" fill="#1c2c38"/>
+<rect x="150" y="560" width="320" height="26" fill="#1c2c38"/>
+<rect x="150" y="82" width="320" height="64" rx="10" fill="url(#cy2)"/><rect x="150" y="82" width="320" height="64" rx="10" fill="url(#dots2)"/>
+<rect x="150" y="150" width="320" height="90" rx="12" fill="url(#rl2)"/>
+<rect x="150" y="250" width="320" height="120" rx="14" fill="url(#rl2)"/>
+<rect x="150" y="250" width="320" height="120" rx="14" fill="url(#mg2)" opacity=".5"/>
+<rect x="150" y="250" width="320" height="120" rx="14" fill="url(#dots2)"/>
+<rect x="150" y="380" width="320" height="76" rx="10" fill="url(#rl2)"/>
+<rect x="150" y="470" width="320" height="64" rx="10" fill="url(#yl2)"/>
+</g></g>
+<g opacity=".95">
+<circle cx="1180" cy="330" r="150" fill="url(#rl2)"/><circle cx="1180" cy="330" r="150" fill="url(#dots2)" opacity=".7"/><circle cx="1180" cy="330" r="22" fill="#0c1822"/>
+<circle cx="1180" cy="330" r="92" fill="none" stroke="#0A9FD1" stroke-width="10" opacity=".7"/>
+<circle cx="1420" cy="600" r="96" fill="url(#rl2)"/><circle cx="1420" cy="600" r="14" fill="#0c1822"/>
+<circle cx="1000" cy="700" r="60" fill="url(#bk2)"/><circle cx="1000" cy="700" r="9" fill="#0c1822"/>
+</g>
+<g opacity=".85">
+<rect x="0" y="780" width="1600" height="14" fill="url(#cy2)"/><rect x="0" y="800" width="1600" height="14" fill="url(#mg2)"/><rect x="0" y="820" width="1600" height="14" fill="url(#yl2)"/><rect x="0" y="840" width="1600" height="14" fill="url(#bk2)"/>
+</g>
+</svg></div>
+  <div class="lkWrap">
+    <div class="lkBrand"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none' stroke='%2318b5e6' stroke-width='2.4'><circle cx='24' cy='24' r='14'/><circle cx='24' cy='24' r='4.5'/><path d='M24 2v6M24 40v6M2 24h6M40 24h6'/></svg>" alt=""><span>FlexoCalculator</span></div>
+    <section class="lkCard">
+      <div class="lkIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
       <h2 id="licenseTitle">Start your free trial</h2>
-      <div class="section-desc" id="licenseDesc">Confirm your email and your 7-day free trial starts right away, no card needed. Or choose a monthly or yearly plan. After you pay, this screen unlocks by itself within a few seconds.</div>
-      <div id="licenseVerify" class="note hidden" style="margin-bottom:12px"></div>
-      <div class="actions">
-        <button class="calculate" id="licenseBuy" style="width:auto;padding:0 18px">Buy now</button>
-        <button class="savebtn" id="licenseRefresh">Refresh</button>
-      </div>
-      <div class="actions" style="margin-top:10px">
-        <button class="savebtn" id="licenseResend">Resend verification email</button>
-        <button class="savebtn hidden" id="licenseBack">Back to app</button>
-        <button class="savebtn" id="licenseSignOut">Sign out</button>
-      </div>
-      <div style="margin-top:12px;font-size:13px">Pay with the same email you used to sign up: <b id="licenseEmail"></b></div>
+      <div class="lkDesc" id="licenseDesc">Confirm your email and your 7-day free trial starts right away, no card needed. Or subscribe to a monthly or yearly plan.</div>
+      <div id="licenseVerify" class="lkVerify hidden"></div>
+      <button class="calculate lkBtn" id="licenseRefresh">Refresh</button>
+      <button class="savebtn lkBtn" id="licenseBuy">Subscribe</button>
+      <button class="savebtn lkBtn hidden" id="licenseBack">Back to app</button>
       <div id="licenseMessage" class="note hidden"></div>
+      <div class="lkFoot">
+        <div>Signed in as <b id="licenseEmail"></b></div>
+        <div class="lkLinks"><a href="#" id="licenseResend">Resend verification email</a><a href="#" id="licenseSignOut">Sign out</a></div>
+      </div>
+      <div class="lkGuar">After you pay, this screen unlocks by itself within a few seconds. Pay with the same email you signed up with. 7-day money-back guarantee.</div>
     </section>
   </div>
 </div>
@@ -914,7 +976,7 @@ async function refreshLicense(){
   }finally{ btn.disabled=false; }
 }
 async function buyNow(){
-  if(fbUser&&!fbUser.emailVerified){ showLicenseMessage("Please confirm your email first (see above), then press \"Refresh\", then Buy now.","error"); return; }
+  if(fbUser&&!fbUser.emailVerified){ showLicenseMessage("Please confirm your email first (see above), then press \"Refresh\", then Subscribe.","error"); return; }
   const btn=$("licenseBuy"); btn.disabled=true; showLicenseMessage("Opening checkout…");
   const w=window.open("","_blank");
   try{
@@ -2549,8 +2611,8 @@ $("licenseBuy").addEventListener("click",buyNow);
 $("licenseRefresh").addEventListener("click",refreshLicense);
 $("trialSubscribe").addEventListener("click",()=>{ $("licenseTitle").textContent="Subscribe to FlexoCalculator"; $("licenseBack").classList.remove("hidden"); $("licenseGate").classList.remove("hidden"); });
 $("licenseBack").addEventListener("click",()=>$("licenseGate").classList.add("hidden"));
-$("licenseResend").addEventListener("click",resendVerification);
-$("licenseSignOut").addEventListener("click",syncSignOutNow);
+$("licenseResend").addEventListener("click",e=>{e.preventDefault();resendVerification();});
+$("licenseSignOut").addEventListener("click",e=>{e.preventDefault();syncSignOutNow();});
 $("syncPassword2").addEventListener("keydown",e=>{ if(e.key==="Enter")syncSignUp(); });
 $("syncPassword").addEventListener("keydown",e=>{ if(e.key==="Enter")($("syncSignUp").classList.contains("hidden")?syncSignIn():syncSignUp()); });
 $("saveCompany").onclick=saveCompanyProfile;

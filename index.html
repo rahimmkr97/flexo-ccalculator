@@ -988,7 +988,7 @@ const BUILTIN_FIREBASE_CONFIG={
 };
 /* ====================================================== */
 let fbApp=null, fbAuth=null, fbDb=null, fbUser=null, fbUnsub=null;
-let applyingRemoteState=false, lastPushedBlob=null, pushTimer=null;
+let applyingRemoteState=false, lastPushedBlob=null, pushTimer=null, cloudReady=false;
 
 const deviceId=(()=>{
   let id=localStorage.getItem("fcsync_device");
@@ -1058,7 +1058,8 @@ function schedulePush(){
 }
 
 function pushStateNow(){
-  if(!fbUser||!fbDb)return;
+  // Never upload before the account's cloud copy has been loaded: a new device must not overwrite saved data.
+  if(!fbUser||!fbDb||!cloudReady)return;
   const blob=JSON.stringify(collectAppState());
   if(blob===lastPushedBlob)return;
   lastPushedBlob=blob;
@@ -1104,7 +1105,8 @@ function initFirebaseIfConfigured(){
       $("authGate").classList.remove("hidden");
       $("licenseGate").classList.add("hidden"); $("trialBar").classList.add("hidden"); clearTimeout(trialTimer); setTrialUsed(false); $("licenseTitle").textContent="Start your 3-day free trial";
       if(fbLicUnsub){ fbLicUnsub(); fbLicUnsub=null; }
-      if(fbUnsub){ fbUnsub(); fbUnsub=null; }
+      if(fbUnsub){ fbUnsub(); fbUnsub=null; } cloudReady=false;
+      cloudReady=false;
     }
   });
 }
@@ -1207,7 +1209,7 @@ function evaluateLicense(uid){
     setSyncStatus("Connecting…");
     if(!fbUnsub)subscribeToCloud(uid);
   }else{
-    if(fbUnsub){ fbUnsub(); fbUnsub=null; }
+    if(fbUnsub){ fbUnsub(); fbUnsub=null; } cloudReady=false;
     updateVerifyNotice();
     $("licenseBack").classList.add("hidden");
     $("licenseGate").classList.remove("hidden"); showPlanIntent();
@@ -1235,21 +1237,23 @@ function watchLicense(uid){
   });
 }
 function subscribeToCloud(uid){
+  cloudReady=false;
   if(fbUnsub){ fbUnsub(); fbUnsub=null; }
   const ref=fbDb.collection("users").doc(uid).collection("app").doc("state");
   fbUnsub=ref.onSnapshot(snap=>{
     if(!snap.exists){
+      cloudReady=true;
       pushStateNow();
       setSyncStatus("Synced just now (first upload from this device)");
       return;
     }
     const data=snap.data();
-    if(!data||!data.blob)return;
-    if(data.blob===lastPushedBlob){ setSyncStatus("Synced"); return; }
-    if(data.device===deviceId){ lastPushedBlob=data.blob; setSyncStatus("Synced"); return; }
+    if(!data||!data.blob){ cloudReady=true; return; }
+    if(data.blob===lastPushedBlob){ cloudReady=true; setSyncStatus("Synced"); return; }
+    if(data.device===deviceId){ lastPushedBlob=data.blob; cloudReady=true; setSyncStatus("Synced"); return; }
     try{
       applyAppState(JSON.parse(data.blob));
-      lastPushedBlob=data.blob;
+      lastPushedBlob=data.blob; cloudReady=true;
       setSyncStatus("Updated just now from another device");
     }catch(e){ console.error("Bad remote sync data",e); }
   }, err=>setSyncStatus("Sync error: "+err.message));
@@ -1293,7 +1297,7 @@ async function syncSignOutNow(){
   try{
     clearTimeout(pushTimer);
     await pushStateNow();
-    if(fbUnsub){ fbUnsub(); fbUnsub=null; }
+    if(fbUnsub){ fbUnsub(); fbUnsub=null; } cloudReady=false;
     if(fbLicUnsub){ fbLicUnsub(); fbLicUnsub=null; }
     await fbAuth.signOut();
   }catch(e){ console.error(e); }
